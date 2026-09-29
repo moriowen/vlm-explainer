@@ -4,3 +4,4 @@ build
 precompute/.venv
 precompute/run.log
 .DS_Store
+.vercel
