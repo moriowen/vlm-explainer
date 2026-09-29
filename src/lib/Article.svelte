@@ -1,14 +1,11 @@
 <script>
-	import { ui } from './state.svelte.js';
+	import { openStage } from './state.svelte.js';
 
 	let { config } = $props();
 	const v = $derived(config.vision);
 	const t = $derived(config.text);
 	const sf = $derived(config.scale_factor);
-	const open = (id) => {
-		ui.stage = id;
-		window.scrollTo({ top: 0, behavior: 'smooth' });
-	};
+	const open = openStage;
 </script>
 
 <article>

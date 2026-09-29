@@ -21,6 +21,25 @@
 
 	// 16 patch hues for the schematic, ordered the way pixel_shuffle concatenates them
 	const hues = Array.from({ length: 16 }, (_, i) => `hsl(${(i * 360) / 16} 65% 58%)`);
+
+	// Animate the 4x4 block collapsing into one long vector, over and over.
+	let flat = $state(false);
+	let sw = $state(480);
+	$effect(() => {
+		const id = setInterval(() => (flat = !flat), 1700);
+		return () => clearInterval(id);
+	});
+	const cell = 25;
+	function place(i, flat, sw) {
+		if (!flat) return `left:${(i % 4) * (cell + 2)}px;top:${Math.floor(i / 4) * (cell + 2)}px;width:${cell}px;height:${cell}px`;
+		const w = sw / 16;
+		return `left:${i * w}px;top:124px;width:${w - 1}px;height:22px`;
+	}
+	const crop = (i) => {
+		const r = qr * sf + Math.floor(i / 4);
+		const c = qc * sf + (i % 4);
+		return `background-image:url(${tileSrc});background-size:3200% 3200%;background-position:${(c / 31) * 100}% ${(r / 31) * 100}%`;
+	};
 </script>
 
 <div class="wrap">
@@ -39,23 +58,17 @@
 	</div>
 
 	<div class="col diagram">
-		<div class="row">
-			<div class="zoom" style="background-image:url({tileSrc});background-size:{g * 100}%;background-position:{(qc / (g - 1)) * 100}% {(qr / (g - 1)) * 100}%">
-				{#each hues as h, i}
-					<span style="border-color:{h}" title="patch {i + 1}"></span>
-				{/each}
-			</div>
-			<div>
+		<div class="shuffle" bind:clientWidth={sw} aria-label="Pixel shuffle animation">
+			{#each hues as h, i}
+				<span style="{place(i, flat, sw)};{crop(i)};border-color:{h};transition-delay:{i * 25}ms"></span>
+			{/each}
+			<div class="stext">
 				<b>Pixel shuffle</b>
 				<div class="hint">16 neighbouring patches × {v.hidden} dims are stacked into one vector. No weights, just a reshape.</div>
 				<div class="shape">[1024, {v.hidden}] → [{g * g}, {v.hidden * sf * sf}]</div>
 			</div>
+			<div class="dims"><span>0</span><span>{v.hidden * sf * sf} dims</span></div>
 		</div>
-
-		<div class="concat" aria-label="Concatenated vector">
-			{#each hues as h}<span style="background:{h}"></span>{/each}
-		</div>
-		<div class="dims"><span>0</span><span>{v.hidden * sf * sf} dims</span></div>
 
 		<div class="row">
 			<div class="proj" aria-hidden="true">
@@ -120,27 +133,31 @@
 		display: grid;
 		gap: 3px;
 	}
-	.zoom {
-		width: 104px;
-		height: 104px;
-		flex: none;
-		border-radius: 6px;
-		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-		background-repeat: no-repeat;
+	.shuffle {
+		position: relative;
+		height: 164px;
 	}
-	.zoom span {
+	.shuffle > span {
+		position: absolute;
 		border: 2px solid;
+		border-radius: 3px;
+		box-sizing: border-box;
+		transition: all 0.7s cubic-bezier(0.65, 0, 0.35, 1);
 	}
-	.concat {
-		display: flex;
-		height: 18px;
-		border-radius: 4px;
-		overflow: hidden;
+	.stext {
+		position: absolute;
+		left: 124px;
+		top: 0;
+		right: 0;
+		display: grid;
+		gap: 3px;
 	}
-	.concat span {
-		flex: 1;
-		border-right: 1px solid var(--surface);
+	.shuffle .dims {
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 148px;
+		margin: 0;
 	}
 	.dims {
 		display: flex;

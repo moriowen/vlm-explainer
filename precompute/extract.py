@@ -190,6 +190,14 @@ def main(only=None):
                 ids = torch.cat([ids, torch.tensor([[next_id]])], dim=1)
             np.concatenate([c.reshape(-1) for c in dec_chunks]).tofile(d / "dec_attn.bin")
 
+            # merged input embeddings (hidden_states[0]) and final-layer states, pooled to 48 dims for vector stripes
+            def pool48(h):
+                h = h.reshape(h.shape[0], 48, -1).mean(-1)
+                h = h / (h.abs().amax(-1, keepdim=True) + 1e-8)
+                return (h * 127).round().int().tolist()
+            embed_vecs = pool48(out.hidden_states[0][0])
+            final_vecs = pool48(out.hidden_states[-1][0])
+
         # ---- tokens (full final sequence) ----
         all_ids = ids[0].tolist()
         tokens = []
@@ -226,6 +234,8 @@ def main(only=None):
             "vit_attn_entropy": vit_attn_entropy,
             "steps": steps,
             "dec_offsets": dec_offsets,
+            "embed_vecs": embed_vecs,
+            "final_vecs": final_vecs,
             "output": tok.decode([s["token_id"] for s in steps], skip_special_tokens=True).strip(),
         }
         (d / "meta.json").write_text(json.dumps(meta, ensure_ascii=False))

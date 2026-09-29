@@ -95,3 +95,27 @@ export function softmaxTemp(top, temp) {
 	const z = e.reduce((a, b) => a + b, 0);
 	return top.map((t, i) => ({ token: t[0], id: t[1], logit: t[2], p: e[i] / z }));
 }
+
+const TAG = /^<(fake_token_around_image|row_\d|global-img)/;
+
+/**
+ * Group the first `len` tokens into display segments:
+ * chips (text / tag / gen runs) and image runs (one per split).
+ */
+export function segmentsOf(meta, len) {
+	const out = [];
+	let cur = null;
+	meta.tokens.slice(0, len).forEach((t, pos) => {
+		if (t.kind === 'image') {
+			if (cur?.type !== 'image' || cur.split !== t.split) out.push((cur = { type: 'image', split: t.split, qs: [], pos }));
+			cur.qs.push(t.q);
+			return;
+		}
+		const kind = pos >= meta.prompt_len ? 'gen' : TAG.test(t.s) ? 'tag' : 'text';
+		if (cur?.type !== 'chips' || cur.kind !== kind || t.s === '<end_of_utterance>') {
+			out.push((cur = { type: 'chips', kind, toks: [] }));
+		}
+		cur.toks.push({ ...t, pos });
+	});
+	return out;
+}
