@@ -1,0 +1,20 @@
+[
+  {
+    "id": "cats",
+    "title": "Two cats on a couch",
+    "image": "http://images.cocodataset.org/val2017/000000039769.jpg",
+    "prompt": "Can you describe this image?"
+  },
+  {
+    "id": "bee",
+    "title": "Bee on a flower",
+    "image": "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/bee.jpg",
+    "prompt": "What insect is this and what is it doing?"
+  },
+  {
+    "id": "room",
+    "title": "Living room",
+    "image": "http://images.cocodataset.org/val2017/000000000139.jpg",
+    "prompt": "How many people are in this room?"
+  }
+]

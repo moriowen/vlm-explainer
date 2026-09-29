@@ -1,0 +1,40 @@
+{
+  "config": {
+    "model_id": "HuggingFaceTB/SmolVLM-256M-Instruct",
+    "vision": {
+      "layers": 12,
+      "heads": 12,
+      "hidden": 768,
+      "mlp": 3072,
+      "patch": 16,
+      "image_size": 512
+    },
+    "scale_factor": 4,
+    "text": {
+      "layers": 30,
+      "heads": 9,
+      "kv_heads": 3,
+      "hidden": 576,
+      "mlp": 1536,
+      "vocab": 49280
+    },
+    "longest_edge": 1024
+  },
+  "examples": [
+    {
+      "id": "cats",
+      "title": "Two cats on a couch",
+      "prompt": "Can you describe this image?"
+    },
+    {
+      "id": "bee",
+      "title": "Bee on a flower",
+      "prompt": "What insect is this and what is it doing?"
+    },
+    {
+      "id": "room",
+      "title": "Living room",
+      "prompt": "How many people are in this room?"
+    }
+  ]
+}
